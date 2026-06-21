@@ -75,49 +75,66 @@ class ResultScene extends Phaser.Scene {
       confusing.push(...Object.values(wrongSet).slice(0, 5));
     }
 
+    var allCorrect = this.resultData.correctCount === this.resultData.totalPairs
+      && this.resultData.wrongCount === 0;
+
     if (confusing.length > 0) {
-      const itemY = 300;
-      const itemHeight = 50;
+      var itemY = 300;
+      var itemHeight = 50;
 
-      confusing.slice(0, 5).forEach((item, index) => {
-        const y = itemY + index * (itemHeight + 8);
-        const rank = index + 1;
+      for (var idx = 0; idx < Math.min(5, confusing.length); idx++) {
+        var item = confusing[idx];
+        var y = itemY + idx * (itemHeight + 8);
+        var rank = idx + 1;
 
-        const bg = this.add.rectangle(width / 2, y, 700, itemHeight, 0x2c3e50, 0.8)
+        this.add.rectangle(width / 2, y, 700, itemHeight, 0x2c3e50, 0.8)
           .setStrokeStyle(1, 0x34495e);
 
-        const rankColor = rank === 1 ? '#e74c3c' : rank === 2 ? '#e67e22' : rank === 3 ? '#f1c40f' : '#7f8c8d';
-        const rankText = this.add.text(width / 2 - 330, y, `#${rank}`, {
+        var rankColor = rank === 1 ? '#e74c3c' : rank === 2 ? '#e67e22' : rank === 3 ? '#f1c40f' : '#7f8c8d';
+        this.add.text(width / 2 - 330, y, '#' + rank, {
           fontSize: '18px',
           fontStyle: 'bold',
           color: rankColor
         }).setOrigin(0, 0.5);
 
-        const upperText = this.add.text(width / 2 - 280, y, item.upper, {
+        this.add.text(width / 2 - 280, y, item.upper, {
           fontSize: '15px',
           color: '#ecf0f1'
         }).setOrigin(0, 0.5);
 
-        const arrowText = this.add.text(width / 2 - 30, y, '→', {
+        this.add.text(width / 2 - 30, y, '→', {
           fontSize: '16px',
           color: '#e74c3c',
           fontStyle: 'bold'
         }).setOrigin(0, 0.5);
 
-        const selectedText = this.add.text(width / 2, y, item.selected, {
+        this.add.text(width / 2, y, item.selected, {
           fontSize: '15px',
           color: '#e74c3c'
         }).setOrigin(0, 0.5);
 
-        const correctText = this.add.text(width / 2 + 320, y, `正确: ${item.correct}`, {
+        this.add.text(width / 2 + 320, y, '正确: ' + item.correct, {
           fontSize: '12px',
           color: '#2ecc71'
         }).setOrigin(1, 0.5);
-      });
-    } else {
-      const perfectText = this.add.text(width / 2, 320, '✨ 全部正确！完美通关！', {
+      }
+    } else if (allCorrect) {
+      this.add.text(width / 2, 320, '✨ 全部正确！完美通关！', {
         fontSize: '24px',
         color: '#2ecc71',
+        fontStyle: 'bold'
+      }).setOrigin(0.5);
+    } else if (!isWin) {
+      var remain = this.resultData.totalPairs - this.resultData.correctCount;
+      this.add.text(width / 2, 320, '⚠️ 时间到！还剩 ' + remain + ' 组未完成', {
+        fontSize: '24px',
+        color: '#e67e22',
+        fontStyle: 'bold'
+      }).setOrigin(0.5);
+    } else {
+      this.add.text(width / 2, 320, '✅ 完成！有错误配对，继续加油', {
+        fontSize: '22px',
+        color: '#f39c12',
         fontStyle: 'bold'
       }).setOrigin(0.5);
     }
@@ -172,32 +189,31 @@ class ResultScene extends Phaser.Scene {
       this.scene.start('MenuScene');
     });
 
-    if (!isWin || this.resultData.levelIndex < 2) {
-      if (this.resultData.levelIndex < 2) {
-        const nextBtn = this.add.rectangle(width / 2, btnY - 70, btnWidth + 40, btnHeight, 0x2ecc71, 0.9)
-          .setStrokeStyle(2, 0x27ae60)
-          .setInteractive({ useHandCursor: true });
+    if (isWin && this.resultData.levelIndex < 2) {
+      var nextBtn = this.add.rectangle(width / 2, btnY - 70, btnWidth + 40, btnHeight, 0x2ecc71, 0.9)
+        .setStrokeStyle(2, 0x27ae60)
+        .setInteractive({ useHandCursor: true });
 
-        const nextText = this.add.text(width / 2, btnY - 70, '➡️ 下一关', {
-          fontSize: '18px',
-          color: '#fff',
-          fontStyle: 'bold'
-        }).setOrigin(0.5);
+      var nextText = this.add.text(width / 2, btnY - 70, '➡️ 下一关', {
+        fontSize: '18px',
+        color: '#fff',
+        fontStyle: 'bold'
+      }).setOrigin(0.5);
 
-        nextBtn.on('pointerover', () => nextBtn.setFillStyle(0x2ecc71, 1));
-        nextBtn.on('pointerout', () => nextBtn.setFillStyle(0x2ecc71, 0.9));
-        nextBtn.on('pointerdown', () => {
-          this.scene.start('GameScene', {
-            levelIndex: this.resultData.levelIndex + 1,
-            levelData: this.cache.json.get('poetryLevels').levels[this.resultData.levelIndex + 1]
-          });
+      nextBtn.on('pointerover', function() { nextBtn.setFillStyle(0x2ecc71, 1); });
+      nextBtn.on('pointerout', function() { nextBtn.setFillStyle(0x2ecc71, 0.9); });
+      var self = this;
+      nextBtn.on('pointerdown', function() {
+        self.scene.start('GameScene', {
+          levelIndex: self.resultData.levelIndex + 1,
+          levelData: self.cache.json.get('poetryLevels').levels[self.resultData.levelIndex + 1]
         });
+      });
 
-        retryBtn.x = width / 2 - 180;
-        retryText.x = width / 2 - 180;
-        menuBtn.x = width / 2 + 180;
-        menuText.x = width / 2 + 180;
-      }
+      retryBtn.x = width / 2 - 180;
+      retryText.x = width / 2 - 180;
+      menuBtn.x = width / 2 + 180;
+      menuText.x = width / 2 + 180;
     }
   }
 }
