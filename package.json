@@ -1,0 +1,19 @@
+{
+  "name": "poetry-matching-game",
+  "version": "1.0.0",
+  "description": "语文背诵打卡 - 诗句接龙连线游戏 (Phaser 3)",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080 .",
+    "dev": "npx http-server -p 8080 -c-1 ."
+  },
+  "keywords": ["phaser", "poetry", "game", "chinese"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "phaser": "^3.70.0"
+  }
+}

@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  poetry-game:
+    build: .
+    ports:
+      - "8080:80"
+    container_name: poetry-matching-game
+    restart: unless-stopped
